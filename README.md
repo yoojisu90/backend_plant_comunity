@@ -152,6 +152,91 @@ cd plant-community
 
 ## 📊 ERD 및 API 명세
 
+### 📡 API 엔드포인트 정리
+
+#### 1️⃣ Member API (회원 관리)
+
+**인증**
+- `POST /members` - 회원가입
+- `GET /members/login` - 로그인
+- `GET /members/{memId}` - 회원 상세정보 조회
+
+**중복검사**
+- `GET /members/checkId/{memId}` - 아이디 중복검사
+- `GET /members/checkTell/{memTell}` - 연락처 중복검사
+- `GET /members/checkBusinessNum/{memBusinessNum}` - 사업자번호 중복검사
+
+**회원정보 관리**
+- `PUT /members/{memId}` - 회원정보 수정
+- `PUT /members/{memId}/withdraw` - 회원 탈퇴
+- `GET /members/findId` - 아이디 찾기
+- `GET /members/findPw` - 비밀번호 찾기
+
+**프로필 이미지**
+- `POST /members/profile-image` - 프로필 이미지 업로드 (JPG/JPEG/PNG, 최대 10MB)
+- `GET /members/profile-image/{memId}` - 프로필 이미지 조회
+
+**관리자 기능**
+- `GET /members/admin` - 전체 활성 회원 목록
+- `GET /members/admin/deleted` - 삭제/탈퇴 회원 목록
+- `GET /members/status/{memId}` - 회원 상태 확인
+- `PUT /members/admin/{memId}/delete` - 회원 삭제
+- `PUT /members/admin/{memId}/restore` - 회원 복구
+
+---
+
+#### 2️⃣ Board API (게시판)
+
+**게시글 CRUD**
+- `POST /boards` - 게시글 등록
+- `GET /boards/{memId}` - 마이팜 게시글 조회
+- `GET /boards/boardList-paging` - 페이징 목록 조회
+- `GET /boards/boardDetail/{boardNum}` - 게시글 상세 조회 (조회수 자동 증가)
+- `PUT /boards/boardDetail/{boardNum}` - 게시글 수정
+- `DELETE /boards/boardDetail/{boardNum}` - 게시글 삭제 (사용자)
+- `DELETE /boards/{boardNum}` - 게시글 삭제 (관리자)
+
+**특수 조회**
+- `GET /boards` - 홈화면 인기글 조회
+- `GET /boards/boardList` - 전체 게시글 조회
+
+**이미지 관리**
+- `POST /boards/upload/img` - 게시글 작성 시 이미지 미리 등록 (MultipartFile)
+
+---
+
+#### 3️⃣ Chat API (실시간 채팅)
+
+**채팅방 관리**
+- `POST /api/chat/room/direct` - 1:1 채팅방 생성 (memId1, memId2 필수)
+- `POST /api/chat/room/group` - 단체 채팅방 생성 (roomName, memberIds 필수)
+- `GET /api/chat/room/{roomId}` - 채팅방 조회
+- `GET /api/chat/rooms/{memId}` - 내 채팅방 목록
+
+**메시지 관리**
+- `POST /api/chat/message` - 메시지 전송
+- `GET /api/chat/messages/{roomId}` - 메시지 목록 (페이징: page, size)
+- `DELETE /api/chat/message/{msgId}` - 메시지 삭제
+- `GET /api/chat/unread/{memId}/{roomId}` - 안 읽은 메시지 수
+
+**참여자 관리**
+- `POST /api/chat/room/{roomId}/participant/{memId}` - 참여자 추가
+- `GET /api/chat/room/{roomId}/participants` - 참여자 목록
+- `DELETE /api/chat/room/{roomId}/leave/{memId}` - 채팅방 나가기
+
+**읽음 처리 & 파일**
+- `PUT /api/chat/room/{roomId}/read/{memId}` - 메시지 읽음 표시
+- `POST /api/chat/upload` - 채팅 파일 업로드 (file, roomId, senderId 필수)
+
+---
+
+#### 4️⃣ Weather API (날씨)
+
+**좌표 변환**
+- `GET /api/weather/geocode` - 주소를 좌표로 변환 (Kakao API 활용)
+
+---
+
 ### 주요 테이블
 - `member`: 회원 정보
 - `board`: 게시글
@@ -304,23 +389,33 @@ POST /api/plants/{id}/review  // 리뷰 작성
 
 **데이터 구조**
 ```java
-{
-  "plantId": 1,
-  "name": "몬스테라",
-  "scientificName": "Monstera deliciosa",
-  "category": "관엽식물",
-  "difficulty": "초급",
-  "wateringCycle": 7,  // 일 단위
-  "sunlight": "반양지",
-  "temperature": "18-25°C",
-  "humidity": "60-80%",
-  "description": "열대 우림 지역 원산...",
-  "careGuide": {
-    "watering": "...",
-    "fertilizing": "...",
-    "repotting": "..."
-  }
-}
+//식물 정보 테이블 생성
+CREATE TABLE CROP_STANDARDS(
+  HERB_NUM INT PRIMARY KEY AUTO_INCREMENT, #작물 ID
+  HERB_NAME VARCHAR(50) NOT NULL, #작물 이름
+  TEMP_MIN FLOAT NOT NULL, #최저 온도
+  TEMP_MAX FLOAT NOT NULL, #최대 온도
+  HUMID_MIN FLOAT NOT NULL, #최저 습도
+  HUMID_MAX FLOAT NOT NULL, #최대 습도
+  SOIL_MIN FLOAT NOT NULL, #최소 토양 수분
+  SOIL_MAX FLOAT NOT NULL, #최대 토양 수분
+  LUX_MIN INT NOT NULL, #최소 조도
+  LUX_MAX INT NOT NULL, #최대 조도
+  IMG_NAME VARCHAR(100) NOT NULL #작물 이미지
+);
+
+//식물 데이터 삽입
+INSERT INTO CROP_STANDARDS	(
+  HERB_NAME, TEMP_MIN, TEMP_MAX, HUMID_MIN, HUMID_MAX
+  , SOIL_MIN, SOIL_MAX, LUX_MIN, LUX_MAX, IMG_NAME
+  ) VALUES(
+  '바질', 20, 30, 40, 60, 25, 40, 20000, 60000, '바질.jfjf'),
+  ('로즈마리', 15, 25, 30, 50, 10, 20, 30000, 70000, '로즈마리.jfjf'),
+  ('라벤더', 15, 25, 30, 50, 10, 20, 30000, 70000, '라벤더.jfjf'),
+  ('민트', 15, 25, 50, 70, 30, 45, 15000, 40000, '민트.jfjf'),
+  ('타임', 15, 25, 30, 50, 10, 20, 20000, 60000, '타임.jfjf'),
+  ('파슬리', 15, 25, 40, 60, 20, 35, 15000, 40000, '파슬리.jfjf'
+);
 ```
 
 ---
