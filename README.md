@@ -371,7 +371,6 @@ public ResponseEntity<PageResponseDTO<PlantDTO>> getPlants(
 - [ ] Redis 캐싱 도입으로 성능 최적화
 - [ ] 알림 기능 고도화 (FCM 연동)
 - [ ] 식물 AI 진단 기능
-- [ ] 모바일 앱 개발
 
 ## 📝 개발 환경
 
@@ -382,16 +381,15 @@ public ResponseEntity<PageResponseDTO<PlantDTO>> getPlants(
 
 ## 👥 팀 구성
 
-- **Backend Developer**: [Your Name]
+- **Frontend Developer - Web**: [유지수]
+- **Frontend Developer - App**: [유지수]
+- **Backend Developer**: [유지수]
 
-## 📄 라이센스
-
-This project is licensed under the MIT License.
 
 ## 📧 연락처
 
-- Email: your.email@example.com
-- GitHub: [@yourusername](https://github.com/yourusername)
+- Email: yoo901013@gmail.com
+- GitHub: [@yoojisu90](https://github.com/yoojisu90)
 - Portfolio: [your-portfolio-link](https://your-portfolio.com)
 
 ---
